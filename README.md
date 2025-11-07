@@ -155,6 +155,13 @@ npm start
 - **SSR Mejorado**: Hydration automática con event replay
 - **Vite Integration**: Build y HMR más rápidos que Webpack
 
+### Manejo Seguro de Variables de Entorno
+- **Carga automática**: El servidor lee `.env` usando `process.cwd()`
+- **Sin dependencias**: No requiere dotenv, implementación nativa
+- **Múltiples fuentes**: Busca en `GOOGLE_AI_API_KEY`, `GEMINI_API_KEY`, etc.
+- **Desarrollo y producción**: Funciona en ambos entornos
+- **Seguridad**: Nunca expone keys en el cliente, solo en el servidor SSR
+
 ### Arquitectura
 - **Componente Principal**: Maneja estado y lógica de negocio
 - **Servicio**: Comunicación con API y utilidades de color
@@ -193,17 +200,36 @@ npm run serve:ssr
 ## 🐛 Resolución de Problemas
 
 ### Error: API Key no válida
-- Verifica que tu API key esté correcta en `.env`
-- Asegúrate de que la API key tenga permisos para Gemini
+- **Verifica el archivo `.env`**: Debe estar en la raíz del proyecto
+- **Confirma la API key**: Cópiala exactamente desde Google AI Studio
+- **Revisa los permisos**: Asegúrate de que la API key tenga acceso a Gemini
 
 ### Los colores no se muestran
-- Revisa la consola del navegador para errores
-- Verifica que el servidor esté ejecutándose
-- Comprueba que HttpClient esté configurado
+- **Consola del navegador**: Busca errores de red o JavaScript
+- **Consola del servidor**: Verifica los logs de `ng serve`
+- **Endpoint de prueba**: Visita `/api/debug` para verificar la API key
+- **Variables de entorno**: Confirma que `hasApiKey: true` en el debug
+
+### Variables de entorno no se cargan
+- **Ubicación del archivo**: `.env` debe estar en la raíz del proyecto
+- **Formato correcto**: `GOOGLE_AI_API_KEY=tu_clave_sin_espacios`
+- **Sin comillas**: No uses comillas alrededor del valor
+- **Reinicia el servidor**: Ejecuta `ng serve` nuevamente después de cambios
 
 ### Error de CORS
-- Asegúrate de que estés ejecutando en `localhost:4200`
-- Verifica que el servidor Express esté configurado correctamente
+- **Desarrollo**: Usa `ng serve` (no `npm start` directo)
+- **Puerto correcto**: Verifica que uses `localhost:4200`
+- **Proxy configuration**: Angular maneja automáticamente las rutas `/api/*`
+
+### Errores de TypeScript
+- **Versión de Angular**: Asegúrate de usar Angular 20+
+- **Strict mode**: El proyecto usa TypeScript strict, revisa los tipos
+- **Imports**: Verifica que todos los imports estén correctos
+
+### Performance Issues
+- **Vite**: El proyecto usa Vite para builds más rápidos
+- **SSR**: Server-Side Rendering mejora la carga inicial
+- **Signals**: Sistema reactivo optimizado de Angular 20
 
 ## 📚 Recursos Adicionales
 
