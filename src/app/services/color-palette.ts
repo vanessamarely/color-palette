@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { retry, catchError, map } from 'rxjs/operators';
 import { 
   ColorPaletteRequest, 
   ColorPaletteResponse, 
   HexColor, 
   ColorInfo,
-  ColorGenerationError 
+  ColorGenerationError,
+  DEFAULT_COLORS 
 } from '../shared/types';
 
 @Injectable({
@@ -16,15 +18,60 @@ export class ColorPalette {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = '/api/colors' as const;
 
+  private readonly cache = new Map<string, ColorPaletteResponse>();
+
   /**
    * Genera una paleta de colores basada en un tema usando IA
    * @param theme - El tema para generar los colores (ej: "bosque tropical")
    * @returns Observable con la respuesta de la API
    */
   generatePalette(theme: string): Observable<ColorPaletteResponse> {
-    const request: ColorPaletteRequest = { theme: theme.trim() };
+    const trimmedTheme = theme.trim().toLowerCase();
     
-    return this.http.post<ColorPaletteResponse>(this.apiUrl, request);
+    // Verificar cache primero
+    const cached = this.cache.get(trimmedTheme);
+    if (cached) {
+      console.log(`🎨 Usando cache para tema: ${trimmedTheme}`);
+      return of(cached);
+    }
+
+    const request: ColorPaletteRequest = { theme: trimmedTheme };
+    
+    return this.http.post<ColorPaletteResponse>(this.apiUrl, request).pipe(
+      // Reintentar hasta 3 veces si falla
+      retry(3),
+      
+      // Guardar en cache si es exitoso
+      map(response => {
+        this.cache.set(trimmedTheme, response);
+        console.log(`✅ Guardado en cache: ${trimmedTheme}`);
+        return response;
+      }),
+      
+      // Manejo de errores con fallback
+      catchError(error => {
+        console.error('❌ Error generando paleta:', error);
+        return this.getFallbackPalette(trimmedTheme);
+      })
+    );
+  }
+
+  /**
+   * Retorna una paleta de colores por defecto cuando la IA falla
+   * @param theme - El tema original solicitado
+   * @returns Observable con paleta de respaldo
+   */
+  private getFallbackPalette(theme: string): Observable<ColorPaletteResponse> {
+    const fallbackResponse: ColorPaletteResponse = {
+      colors: DEFAULT_COLORS,
+      theme: theme,
+      fallback: true,
+      message: 'Se usaron colores por defecto debido a un error en la IA',
+      timestamp: new Date().toISOString(),
+      aiModel: 'fallback'
+    };
+
+    return of(fallbackResponse);
   }
 
   /**
@@ -63,5 +110,25 @@ export class ColorPalette {
     // Fórmula de luminancia: https://en.wikipedia.org/wiki/Relative_luminance
     const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
     return luminance > 0.5;
+  }
+
+  /**
+   * Limpia el cache de paletas guardadas
+   * Útil para testing o para liberar memoria
+   */
+  clearCache(): void {
+    this.cache.clear();
+    console.log('🧹 Cache de paletas limpiado');
+  }
+
+  /**
+   * Obtiene estadísticas del cache actual
+   * @returns Información sobre temas cacheados
+   */
+  getCacheStats(): { size: number; themes: string[] } {
+    return {
+      size: this.cache.size,
+      themes: Array.from(this.cache.keys())
+    };
   }
 }
