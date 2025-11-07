@@ -1,0 +1,86 @@
+{
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  
+  // Angular specific settings
+  "angular.enable-strict-mode-prompt": false,
+  "angular.experimental.ivy": true,
+  
+  // Vite specific settings
+  "files.associations": {
+    "vite.config.ts": "typescript"
+  },
+  
+  // TypeScript strict settings
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.paths": true,
+  "typescript.preferences.useLabelDetailsInCompletionEntries": true,
+  
+  // ESLint settings
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "html"
+  ],
+  
+  // Auto-format settings
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+  
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  
+  // GitHub Copilot settings
+  "github.copilot.enable": {
+    "*": true,
+    "typescript": true,
+    "html": true,
+    "css": true,
+    "json": true
+  },
+  
+  // Angular language service settings
+  "html.suggest.angular1": false,
+  "html.suggest.ionic": false,
+  
+  // File exclusions for better performance
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.angular": true
+  },
+  
+  // Search exclusions
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.angular": true,
+    "**/coverage": true
+  },
+  
+  // Emmet settings for Angular templates
+  "emmet.includeLanguages": {
+    "typescript": "html"
+  },
+  
+  // IntelliSense settings
+  "typescript.suggest.completeFunctionCalls": true,
+  "typescript.suggest.includeCompletionsForImportStatements": true,
+  
+  // Error lens settings (if installed)
+  "errorLens.enabledDiagnosticLevels": [
+    "error",
+    "warning",
+    "info",
+    "hint"
+  ]
+}
